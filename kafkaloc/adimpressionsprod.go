@@ -5,10 +5,29 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"sync"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
 )
+
+var devices = []string{"mobile", "desktop"}
+
+type combineddata struct {
+	CampaignID      int    `json:"campaign_id"`
+	CampaignType    string `json:"campaign_type"`
+	CampaignContent string `json:"campaign_content"`
+	UserID          int    `json:"user_id"`
+	Device          string `json:"device"`
+	City            string `json:"city"`
+	Age             int    `json:"age"`
+	Gender          string `json:"gender"`
+	EventID         string `json:"event_id"`
+	Timestamp       int64  `json:"timestamp"` // Unix timestamp in seconds
+	EventType       string `json:"event_type"`
+}
 
 // needs to push messages to adimpressions topic and userevents topic.
 
@@ -26,24 +45,18 @@ func CreateAdImpressions() {
 			user := generator.CreateUser()
 
 			// Combine them into a single struct
-			data := struct {
-				CampaignID      int    `json:"campaign_id"`
-				CampaignType    string `json:"campaign_type"`
-				CampaignContent string `json:"campaign_content"`
-				UserID          int    `json:"user_id"`
-				Device          string `json:"device"`
-				City            string `json:"city"`
-				Age             int    `json:"age"`
-				Gender          string `json:"gender"`
-			}{
+			data := combineddata{
 				CampaignID:      campaign.CampaignID,
 				CampaignType:    campaign.CampaignType,
 				CampaignContent: campaign.CampaignContent,
 				UserID:          user.UserID,
-				Device:          user.Device,
+				Device:          devices[rand.Intn(len(devices))],
 				City:            user.City,
 				Age:             user.Age,
 				Gender:          user.Gender,
+				EventID:         uuid.NewString(),
+				Timestamp:       time.Now().Unix(), // Get the current Unix timestamp
+				EventType:       "adImpression",
 			}
 
 			// Marshal the combined struct into JSON
