@@ -12,13 +12,13 @@ import (
 
 // needs to push messages to adimpressions topic and userevents topic.
 
-func createAdImpressions() {
+func CreateAdImpressions() {
 	var wg sync.WaitGroup
 	var numMessages = 10
 	for i := 0; i < numMessages; i++ {
 		wg.Add(1)
 
-		go func() {
+		go func(messageNum int) {
 			defer wg.Done()
 
 			// Generate Campaign and User data
@@ -66,7 +66,7 @@ func createAdImpressions() {
 			} else {
 				fmt.Printf("Message %d sent successfully\n", i)
 			}
-		}()
+		}(i)
 	}
-
+	wg.Wait()
 }

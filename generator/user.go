@@ -14,7 +14,7 @@ type UserData struct {
 
 var userMap = make(map[int]UserData)
 
-var cities = []string{"New York City", "Los Angeles", "Chicago", "Houston", "Phoenix", "New Brunswick", "Fremont"}
+var cities = []string{"New York City", "Los Angeles", "Chicago", "Houston", "Phoenix", "New Brunswick", "Fremont", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"}
 var devices = []string{"mobile", "desktop"}
 var genders = []string{"male", "female", "other"}
 
