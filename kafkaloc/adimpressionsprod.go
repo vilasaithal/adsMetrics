@@ -1,0 +1,72 @@
+package kafkaloc
+
+import (
+	"adsMetrics/generator"
+	"context"
+	"encoding/json"
+	"fmt"
+	"sync"
+
+	"github.com/segmentio/kafka-go"
+)
+
+// needs to push messages to adimpressions topic and userevents topic.
+
+func createAdImpressions() {
+	var wg sync.WaitGroup
+	var numMessages = 10
+	for i := 0; i < numMessages; i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			// Generate Campaign and User data
+			campaign := generator.CreateCampaign()
+			user := generator.CreateUser()
+
+			// Combine them into a single struct
+			data := struct {
+				CampaignID      int    `json:"campaign_id"`
+				CampaignType    string `json:"campaign_type"`
+				CampaignContent string `json:"campaign_content"`
+				UserID          int    `json:"user_id"`
+				Device          string `json:"device"`
+				City            string `json:"city"`
+				Age             int    `json:"age"`
+				Gender          string `json:"gender"`
+			}{
+				CampaignID:      campaign.CampaignID,
+				CampaignType:    campaign.CampaignType,
+				CampaignContent: campaign.CampaignContent,
+				UserID:          user.UserID,
+				Device:          user.Device,
+				City:            user.City,
+				Age:             user.Age,
+				Gender:          user.Gender,
+			}
+
+			// Marshal the combined struct into JSON
+			jsonData, err := json.Marshal(data)
+			if err != nil {
+				fmt.Printf("Failed to marshal data: %v\n", err)
+				return
+			}
+
+			// Create a Kafka message
+			message := kafka.Message{
+				Key:   []byte(fmt.Sprintf("key-%d", i)),
+				Value: jsonData,
+			}
+
+			// Send the JSON message to Kafka
+			err = adimpressionswriter.WriteMessages(context.Background(), message)
+			if err != nil {
+				fmt.Printf("Failed to write message: %v\n", err)
+			} else {
+				fmt.Printf("Message %d sent successfully\n", i)
+			}
+		}()
+	}
+
+}

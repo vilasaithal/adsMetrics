@@ -1,4 +1,4 @@
-module kafka_test
+module adsMetrics
 
 go 1.22.4
 
