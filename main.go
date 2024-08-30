@@ -1,7 +1,7 @@
 package main
 
 import (
-	generatorserver "adsMetrics/GeneratorServer"
+	"adsMetrics/generatorserver"
 	"adsMetrics/kafkaloc"
 
 	"fmt"
