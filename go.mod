@@ -1,8 +1,11 @@
-module kafka_test
+module adsMetrics
 
 go 1.22.4
 
-require github.com/segmentio/kafka-go v0.4.47
+require (
+	github.com/google/uuid v1.6.0
+	github.com/segmentio/kafka-go v0.4.47
+)
 
 require (
 	github.com/klauspost/compress v1.15.9 // indirect
