@@ -4,6 +4,7 @@ import (
 	modalstructs "adsMetrics/modalStructs"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"sync"
@@ -13,57 +14,52 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-func ProcessAdImpressions() {
-	ctx := context.Background()
-
+func ProcessAdImpressions(ctx context.Context) {
 	var wg sync.WaitGroup
 
 	for {
-		msg, err := adimpressionsreader.ReadMessage(ctx)
-		if err != nil {
-			log.Printf("Error reading message from adimpressions: %v", err)
-			continue
+		select {
+		case <-ctx.Done():
+			// Context canceled, exit the loop
+			fmt.Println("Stopping ProcessAdImpressions...")
+			wg.Wait() // Ensure all goroutines complete
+			return
+
+		default:
+			msg, err := adimpressionsreader.ReadMessage(ctx)
+			if err != nil {
+				log.Printf("Error reading message from adimpressions: %v", err)
+				continue
+			}
+
+			wg.Add(1)
+
+			go func(msg kafka.Message) {
+				defer wg.Done()
+
+				var data modalstructs.CombinedData
+				if err := json.Unmarshal(msg.Value, &data); err != nil {
+					log.Printf("Error unmarshalling message: %v", err)
+					return
+				}
+
+				randomNum := rand.Intn(100) + 1
+
+				switch {
+				case randomNum < 5:
+					data.EventType = "adError"
+					data.EventID = uuid.NewString()
+					data.Timestamp = time.Now().Unix()
+					sendToKafka(usereventswriter, data)
+
+				case randomNum >= 6 && randomNum <= 40:
+					data.EventType = "adHover"
+					data.EventID = uuid.NewString()
+					data.Timestamp = time.Now().Unix()
+					sendToKafka(adhoverwriter, data)
+					sendToKafka(usereventswriter, data)
+				}
+			}(msg)
 		}
-
-		// Increment the WaitGroup counter
-		wg.Add(1)
-
-		// Process each message in a new goroutine
-		go func(msg kafka.Message) {
-			defer wg.Done() // Decrement the counter when the goroutine completes
-
-			// Unmarshal the message into CombinedData struct
-			var data modalstructs.CombinedData
-			if err := json.Unmarshal(msg.Value, &data); err != nil {
-				log.Printf("Error unmarshalling message: %v", err)
-				return
-			}
-
-			// Generate a random number between 1 and 100
-			randomNum := rand.Intn(100) + 1
-
-			// Process based on the random number
-			switch {
-			case randomNum < 5:
-				// Change event type to adError and send to userevents topic
-				data.EventType = "adError"
-				data.EventID = uuid.NewString()
-				data.Timestamp = time.Now().Unix()
-				sendToKafka(usereventswriter, data)
-
-			case randomNum >= 6 && randomNum <= 40:
-				// Change event type to adHover and send to both adhover and userevents topics
-				data.EventType = "adHover"
-				data.EventID = uuid.NewString()
-				data.Timestamp = time.Now().Unix()
-				sendToKafka(adhoverwriter, data)
-				sendToKafka(usereventswriter, data)
-
-			default:
-				// Do nothing, just continue to the next message
-			}
-		}(msg)
 	}
-	wg.Wait()
-
 }

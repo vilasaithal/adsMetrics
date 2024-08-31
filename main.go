@@ -3,6 +3,7 @@ package main
 import (
 	"adsMetrics/generatorserver"
 	"adsMetrics/kafkaloc"
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,11 +16,14 @@ import (
 func main() {
 	kafkaloc.InitKafka()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	go func() {
-		kafkaloc.ProcessAdImpressions()
+		kafkaloc.ProcessAdImpressions(ctx)
 	}()
 	go func() {
-		kafkaloc.ProcessAdHover()
+		kafkaloc.ProcessAdHover(ctx)
 	}()
 
 	http.HandleFunc("/generate", generatorserver.GenerateHandler)
@@ -34,15 +38,15 @@ func main() {
 			log.Fatalf("HTTP server error: %v", err)
 		}
 	}()
+
 	<-stopChan
 
-	// Gracefully shut down the server
 	fmt.Println("Shutting down server...")
 	if err := server.Close(); err != nil {
 		log.Fatalf("Server shutdown error: %v", err)
 	}
 
-	// Close Kafka connections
+	cancel() // Signal the goroutines to stop
 	kafkaloc.CloseKafka()
 	fmt.Println("Server and Kafka connections closed")
 }
