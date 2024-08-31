@@ -4,7 +4,6 @@ import (
 	modalstructs "adsMetrics/modalStructs"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/segmentio/kafka-go"
@@ -24,7 +23,5 @@ func sendToKafka(writer *kafka.Writer, data modalstructs.CombinedData) {
 	})
 	if err != nil {
 		log.Printf("Error writing message to Kafka: %v", err)
-	} else {
-		fmt.Printf("Message sent to topic %s:", writer.Stats().Topic)
 	}
 }

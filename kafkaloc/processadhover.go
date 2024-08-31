@@ -21,7 +21,7 @@ func ProcessAdHover() {
 	for {
 		msg, err := adhoverreader.ReadMessage(ctx)
 		if err != nil {
-			log.Printf("Error reading message: %v", err)
+			log.Printf("Error reading message from adhover: %v", err)
 			continue
 		}
 

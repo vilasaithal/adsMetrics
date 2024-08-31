@@ -21,7 +21,7 @@ func ProcessAdImpressions() {
 	for {
 		msg, err := adimpressionsreader.ReadMessage(ctx)
 		if err != nil {
-			log.Printf("Error reading message: %v", err)
+			log.Printf("Error reading message from adimpressions: %v", err)
 			continue
 		}
 
