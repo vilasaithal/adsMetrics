@@ -13,7 +13,7 @@ import (
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	kafkaloc.InitKafkaWriter()
+	kafkaloc.InitKafka()
 	http.HandleFunc("/generate", generatorserver.GenerateHandler)
 
 	fmt.Println("Server is running on http://localhost:8080")

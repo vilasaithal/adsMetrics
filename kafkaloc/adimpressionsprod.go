@@ -2,6 +2,7 @@ package kafkaloc
 
 import (
 	"adsMetrics/generator"
+	modalstructs "adsMetrics/modalStructs"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -15,25 +16,11 @@ import (
 
 var devices = []string{"mobile", "desktop"}
 
-type combineddata struct {
-	CampaignID      int    `json:"campaign_id"`
-	CampaignType    string `json:"campaign_type"`
-	CampaignContent string `json:"campaign_content"`
-	UserID          int    `json:"user_id"`
-	Device          string `json:"device"`
-	City            string `json:"city"`
-	Age             int    `json:"age"`
-	Gender          string `json:"gender"`
-	EventID         string `json:"event_id"`
-	Timestamp       int64  `json:"timestamp"` // Unix timestamp in seconds
-	EventType       string `json:"event_type"`
-}
-
 // needs to push messages to adimpressions topic and userevents topic.
 
 func CreateAdImpressions() {
 	var wg sync.WaitGroup
-	var numMessages = 10
+	var numMessages = 50
 	for i := 0; i < numMessages; i++ {
 		wg.Add(1)
 
@@ -45,7 +32,7 @@ func CreateAdImpressions() {
 			user := generator.CreateUser()
 
 			// Combine them into a single struct
-			data := combineddata{
+			data := modalstructs.CombinedData{
 				CampaignID:      campaign.CampaignID,
 				CampaignType:    campaign.CampaignType,
 				CampaignContent: campaign.CampaignContent,
@@ -75,9 +62,15 @@ func CreateAdImpressions() {
 			// Send the JSON message to Kafka
 			err = adimpressionswriter.WriteMessages(context.Background(), message)
 			if err != nil {
-				fmt.Printf("Failed to write message: %v\n", err)
+				fmt.Printf("Failed to write message to adimpressions: %v\n", err)
 			} else {
-				fmt.Printf("Message %d sent successfully\n", i)
+				fmt.Printf("Message %d sent successfully to adimpressions\n", i)
+			}
+			err = usereventswriter.WriteMessages(context.Background(), message)
+			if err != nil {
+				fmt.Printf("Failed to write message to user events: %v\n", err)
+			} else {
+				fmt.Printf("Message %d sent successfully to user events\n", i)
 			}
 		}(i)
 	}
