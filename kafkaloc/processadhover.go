@@ -13,13 +13,13 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-func ProcessAdImpressions() {
+func ProcessAdHover() {
 	ctx := context.Background()
 
 	var wg sync.WaitGroup
 
 	for {
-		msg, err := adimpressionsreader.ReadMessage(ctx)
+		msg, err := adhoverreader.ReadMessage(ctx)
 		if err != nil {
 			log.Printf("Error reading message: %v", err)
 			continue
@@ -44,19 +44,18 @@ func ProcessAdImpressions() {
 
 			// Process based on the random number
 			switch {
-			case randomNum < 5:
+			case randomNum < 30:
 				// Change event type to adError and send to userevents topic
-				data.EventType = "adError"
+				data.EventType = "adClick"
 				data.EventID = uuid.NewString()
 				data.Timestamp = time.Now().Unix()
 				sendToKafka(usereventswriter, data)
 
-			case randomNum >= 6 && randomNum <= 40:
+			case randomNum >= 31 && randomNum <= 80:
 				// Change event type to adHover and send to both adhover and userevents topics
-				data.EventType = "adHover"
+				data.EventType = "adSkip"
 				data.EventID = uuid.NewString()
 				data.Timestamp = time.Now().Unix()
-				sendToKafka(adhoverwriter, data)
 				sendToKafka(usereventswriter, data)
 
 			default:

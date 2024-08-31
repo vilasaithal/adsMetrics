@@ -25,6 +25,6 @@ func sendToKafka(writer *kafka.Writer, data modalstructs.CombinedData) {
 	if err != nil {
 		log.Printf("Error writing message to Kafka: %v", err)
 	} else {
-		fmt.Printf("Message sent to topic %s: %+v\n", writer.Stats().Topic, data)
+		fmt.Printf("Message sent to topic %s:", writer.Stats().Topic)
 	}
 }
