@@ -1,5 +1,11 @@
 package modalstructs
 
+type CampaignData struct {
+	CampaignID      int
+	CampaignType    string
+	CampaignContent string
+}
+
 type CombinedData struct {
 	CampaignID      int    `json:"campaign_id"`
 	CampaignType    string `json:"campaign_type"`
@@ -12,12 +18,6 @@ type CombinedData struct {
 	EventID         string `json:"event_id"`
 	Timestamp       int64  `json:"timestamp"` // Unix timestamp in seconds
 	EventType       string `json:"event_type"`
-}
-
-type CampaignData struct {
-	CampaignID      int
-	CampaignType    string
-	CampaignContent string
 }
 
 type UserData struct {
