@@ -18,6 +18,7 @@ type CombinedData struct { // UserEvent
 	EventID         string `json:"event_id"`
 	Timestamp       int64  `json:"timestamp"` // Unix timestamp in seconds
 	EventType       string `json:"event_type"`
+	AdId            string `json:"ad_id"`
 }
 
 type UserData struct {
@@ -34,5 +35,5 @@ type BaseResp struct {
 
 type UserEventsGenerateResp struct {
 	UserEventsCount int32    `json:"user_event_count"`
-	BaseResp        BaseResp `json:"base_resp`
+	BaseResp        BaseResp `json:"base_resp"`
 }

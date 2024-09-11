@@ -155,6 +155,7 @@ func (p *KafkaProducer) CreateAdImpressions() int {
 				Age:             user.Age,
 				Gender:          user.Gender,
 				EventID:         uuid.NewString(),
+				AdId:            uuid.NewString(),
 				Timestamp:       time.Now().Unix(), // Get the current Unix timestamp
 				EventType:       "adImpression",
 			}
