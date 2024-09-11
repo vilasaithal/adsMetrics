@@ -1,4 +1,4 @@
-package generatorserver
+package main
 
 import (
 	"adsMetrics/models"

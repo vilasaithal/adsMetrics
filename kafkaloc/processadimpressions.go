@@ -1,7 +1,7 @@
 package kafkaloc
 
 import (
-	modalstructs "adsMetrics/modalStructs"
+	modalstructs "adsMetrics/models"
 	"context"
 	"encoding/json"
 	"fmt"

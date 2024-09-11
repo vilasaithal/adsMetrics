@@ -1,7 +1,7 @@
 package generator
 
 import (
-	modalstructs "adsMetrics/modalStructs"
+	modalstructs "adsMetrics/models"
 	"math/rand"
 	"sync"
 )

@@ -2,7 +2,7 @@ package kafkaloc
 
 import (
 	"adsMetrics/generator"
-	modalstructs "adsMetrics/modalStructs"
+	modalstructs "adsMetrics/models"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -18,9 +18,12 @@ var devices = []string{"mobile", "desktop"}
 
 // needs to push messages to adimpressions topic and userevents topic.
 
-func CreateAdImpressions() {
+func CreateAdImpressions() int {
 	var wg sync.WaitGroup
-	var numMessages = 50
+	errChan := make(chan error)
+	counterChan := make(chan int)
+	userEventsCounter := 0
+	numMessages := 5
 	for i := 0; i < numMessages; i++ {
 		wg.Add(1)
 
@@ -50,7 +53,7 @@ func CreateAdImpressions() {
 			jsonData, err := json.Marshal(data)
 			if err != nil {
 				fmt.Printf("Failed to marshal data: %v\n", err)
-				return
+				errChan <- err
 			}
 
 			// Create a Kafka message
@@ -63,16 +66,30 @@ func CreateAdImpressions() {
 			err = adimpressionswriter.WriteMessages(context.Background(), message)
 			if err != nil {
 				fmt.Printf("Failed to write message to adimpressions: %v\n", err)
+				errChan <- err
 			} else {
 				fmt.Printf("Message %d sent successfully to adimpressions\n", i)
 			}
 			err = usereventswriter.WriteMessages(context.Background(), message)
 			if err != nil {
 				fmt.Printf("Failed to write message to user events: %v\n", err)
+				errChan <- err
 			} else {
 				fmt.Printf("Message %d sent successfully to user events\n", i)
+				counterChan <- 1
 			}
 		}(i)
 	}
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(counterChan)
+	}()
+
+	for count := range counterChan {
+		userEventsCounter += count
+	}
+
+	fmt.Println("Finished creating and sending messages")
+
+	return userEventsCounter
 }

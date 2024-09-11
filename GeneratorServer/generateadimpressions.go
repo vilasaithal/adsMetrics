@@ -12,7 +12,7 @@ func Generateadimpressions(w http.ResponseWriter, r *http.Request) {
 	// Use the request's context to handle cancellation
 	ctx := r.Context()
 	stop := make(chan struct{})
-
+	var count int
 	// Start a goroutine to continuously generate messages
 	go func() {
 		ticker := time.NewTicker(5 * time.Second)
@@ -21,7 +21,7 @@ func Generateadimpressions(w http.ResponseWriter, r *http.Request) {
 		for {
 			select {
 			case <-ticker.C:
-				kafkaloc.CreateAdImpressions()
+				count += kafkaloc.CreateAdImpressions()
 			case <-stop:
 				return
 			case <-ctx.Done(): // Context cancellation (client disconnect)
@@ -30,7 +30,8 @@ func Generateadimpressions(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}()
-
+	message := fmt.Sprintf("number of messages = %d", count)
+	w.Write([]byte(message))
 	// Wait for the client to disconnect or the context to be canceled
 	<-ctx.Done()
 

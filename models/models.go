@@ -1,4 +1,4 @@
-package modalstructs
+package models
 
 type CampaignData struct {
 	CampaignID      int
@@ -6,7 +6,7 @@ type CampaignData struct {
 	CampaignContent string
 }
 
-type CombinedData struct {
+type CombinedData struct { // UserEvent
 	CampaignID      int    `json:"campaign_id"`
 	CampaignType    string `json:"campaign_type"`
 	CampaignContent string `json:"campaign_content"`
@@ -25,4 +25,14 @@ type UserData struct {
 	City   string
 	Age    int
 	Gender string
+}
+
+type BaseResp struct {
+	StatusCode int32  `json:"code"`
+	Message    string `json:"message"`
+}
+
+type UserEventsGenerateResp struct {
+	UserEventsCount int32    `json:"user_event_count"`
+	BaseResp        BaseResp `json:"base_resp`
 }
